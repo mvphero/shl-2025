@@ -99,3 +99,7 @@ async def search_by_text(query_text: str = Query(...), top_k: int = 20):
         limit=top_k
     )
     return results
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("search_products:app", host="0.0.0.0", port=8000, reload=True)
