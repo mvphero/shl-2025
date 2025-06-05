@@ -1,0 +1,9 @@
+transformers==4.38.2
+sentence-transformers==2.5.1
+qdrant-client
+pandas
+Pillow
+fastapi
+python-multipart
+uvicorn[standard]
+torchvision

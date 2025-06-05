@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Recommendations</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .product {
+            cursor: pointer;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 180px;
+            text-align: center;
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .product img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .product p {
+            padding: 10px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Рекомендации товаров</h2>
+<div id="products" class="products"></div>
+<button onclick="reset()">Сбросить выбор</button>
+
+<div class="section-title">Случайные товары</div>
+<div id="random-products" class="products"></div>
+
+<script>
+    let viewed_ids = [];
+
+    function fetchRecommendations() {
+        fetch(`/recommend?viewed_ids=${viewed_ids.join(",")}`)
+            .then(res => res.json())
+            .then(products => renderProducts(products, 'products', selectProduct));
+    }
+
+    function fetchRandomProducts() {
+        fetch(`/random`)
+            .then(res => res.json())
+            .then(products => renderProducts(products, 'random-products', selectProduct));
+    }
+
+    function renderProducts(products, containerId, clickHandler) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        products.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.innerHTML = `
+                <img src="/static/${product.image_url}" alt="${product.name}">
+                <p>${product.name}</p>
+            `;
+            if (clickHandler) div.onclick = () => clickHandler(product.id);
+            container.appendChild(div);
+        });
+    }
+
+    function selectProduct(id) {
+        viewed_ids.push(id);
+        if (viewed_ids.length > 3) viewed_ids.shift();
+        fetchRecommendations();
+    }
+
+    function reset() {
+        viewed_ids = [];
+        fetchRecommendations();
+    }
+
+    fetchRecommendations();
+    fetchRandomProducts();
+</script>
+
+</body>
+</html>

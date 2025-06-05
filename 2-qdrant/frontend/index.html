@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Демо поиска товаров (Qdrant)</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9fafb; }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        img {
+            border-radius: 4px;
+            margin-top: 10px;
+            max-width: 150px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.5);
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; }
+        .score { color: #888; font-size: 0.9em; }
+        .search-container { margin-bottom: 20px; }
+        .search-container input[type="text"] {
+            width: 70%;
+            font-size: 16px;
+        }
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #4caf50;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h2>🔍 Демо векторного поиска товаров (Qdrant)</h2>
+
+    <div class="search-container">
+        <h3>Поиск по описанию</h3>
+        <input type="text" id="textQuery" placeholder="Введите описание товара">
+        <button onclick="searchByText()">Искать по тексту 🔎</button>
+        <button onclick="searchByTextImage()">Искать по тексту по картинкам 📸🔎</button>
+    </div>
+
+    <div class="search-container">
+        <h3>Поиск по изображению</h3>
+        <input type="file" id="imageQuery">
+        <button onclick="searchByImage()">Искать по фото 📸</button>
+    </div>
+
+    <div id="loader"></div>
+
+    <div id="results"></div>
+
+    <script>
+        const backendUrl = "http://localhost:8000";
+
+        const loader = document.getElementById('loader');
+
+        function showLoader() {
+            loader.style.display = 'block';
+        }
+
+        function hideLoader() {
+            loader.style.display = 'none';
+        }
+
+        async function searchByText() {
+            const query = document.getElementById('textQuery').value.trim();
+            if (!query) {
+                alert("Введите текст запроса.");
+                return;
+            }
+            showLoader();
+            const response = await fetch(`${backendUrl}/search_by_text?query_text=${encodeURIComponent(query)}`, { method: 'POST' });
+            const results = await response.json();
+            hideLoader();
+            displayResults(results);
+        }
+
+        async function searchByTextImage() {
+            const query = document.getElementById('textQuery').value.trim();
+            if (!query) {
+                alert("Введите текст запроса.");
+                return;
+            }
+            showLoader();
+            const response = await fetch(`${backendUrl}/search_by_text_image?query_text=${encodeURIComponent(query)}`, { method: 'POST' });
+            const results = await response.json();
+            hideLoader();
+            displayResults(results);
+        }
+
+        async function searchByImage() {
+            const fileInput = document.getElementById('imageQuery');
+            if (fileInput.files.length === 0) {
+                alert("Выберите изображение.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            showLoader();
+            const response = await fetch(`${backendUrl}/search_by_image`, {
+                method: 'POST',
+                body: formData
+            });
+            const results = await response.json();
+            hideLoader();
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "";
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = "<p>Ничего не найдено.</p>";
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <tr>
+                    <th>Изображение</th>
+                    <th>Название и категория</th>
+                    <th>Описание</th>
+                    <th>Оценка схожести</th>
+                </tr>
+            `;
+
+            results.forEach(result => {
+                const item = result.payload;
+                const score = result.score.toFixed(3);
+                const imageId = result.id.replace(/-/g, '');
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="static/${imageId}.jpeg" alt="${item.name}"></td>
+                    <td>
+                        <strong>${item.name}</strong><br>
+                        <span>${item.category_name}</span>
+                    </td>
+                    <td>${item.description}</td>
+                    <td class="score">${score}</td>
+                `;
+
+                table.appendChild(row);
+            });
+
+            resultsDiv.appendChild(table);
+        }
+    </script>
+</body>
+</html>
