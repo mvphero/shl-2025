@@ -8,10 +8,16 @@ import numpy as np
 import pandas as pd
 import os
 
-os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+images_dir = os.path.join(script_dir, "images")
 # Загрузка изображений
-image_paths = sorted(glob.glob("images/*.jpg"))
+image_paths = sorted(glob.glob(f"{images_dir}/*.jpg"))
+
 images = [Image.open(path).convert("RGB") for path in image_paths]
 
 # Загрузка моделей
@@ -49,8 +55,6 @@ for (x, y), txt in zip(text_coords, texts):
 
 ax.update_datalim(coords)
 ax.autoscale()
-ax.set_title("Эмбеддинги изображений и текстов через CLIP (PCA)", fontsize=25, fontweight='bold')  # set title font size
 ax.grid(True)
 # save as png
 plt.savefig("multimodal_embeddings.png", dpi=300, bbox_inches='tight')
-plt.show()

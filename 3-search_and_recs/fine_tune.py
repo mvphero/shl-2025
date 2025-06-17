@@ -5,8 +5,14 @@ from sentence_transformers import (
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
-# Путь к CSV с данными
-DATA_CSV = "data/feed_with_images.csv"
+import os
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_CSV = os.path.join(BASE_DIR, "data/feed_with_images.csv")
 
 # Загружаем предварительно обученную модель
 model = SentenceTransformer('clip-ViT-B-32-multilingual-v1')
@@ -27,8 +33,8 @@ train_loss = losses.MultipleNegativesRankingLoss(model)
 model.fit(
     train_objectives=[(train_dataloader, train_loss)],
     epochs=5,
-    warmup_steps=100,
-    output_path='./fine_tuned_text_model'
+    warmup_steps=3,
+    output_path=BASE_DIR + '/fine_tuned_text_model'
 )
 
 print("✅ Fine-tuning завершён. Модель сохранена в './fine_tuned_text_model'.")

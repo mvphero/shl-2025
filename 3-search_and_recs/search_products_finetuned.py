@@ -9,6 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -23,17 +29,20 @@ COLLECTION_NAME = "products"
 COLLECTION_NAME_FINETUNED = "fine_tuned_products"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app.mount("/static", StaticFiles(directory=os.path.abspath("data/product_images")), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "data/product_images")), name="static")
+# For Docker on Windows\MAC, use "http://host.docker.internal:6333"
+# QDRANT_URL = "http://host.docker.internal:6333"
+# For Docker on Linux use
+# QDRANT_URL = "http://172.17.0.1:6333"
+QDRANT_URL = "http://host.docker.internal:6333"
 
-
-client = QdrantClient("http://localhost:6333")
+client = QdrantClient(QDRANT_URL)
 text_model= SentenceTransformer("clip-ViT-B-32-multilingual-v1")
 image_model = SentenceTransformer('clip-ViT-B-32')
 
-
 @app.get("/")
 def read_root():
-    return FileResponse(os.path.join(BASE_DIR, "frontend/index.html"))
+    return FileResponse(os.path.join(BASE_DIR, "frontend/index-finetuned.html"))
 
 
 @app.post("/search_by_text")
@@ -74,11 +83,8 @@ async def search_by_image(image: UploadFile = File(...), top_k: int = 20):
 
 
 
-text_model_finetuned= SentenceTransformer('./fine_tuned_text_model')
+text_model_finetuned= SentenceTransformer(BASE_DIR + "/fine_tuned_text_model")
 
-@app.get("/finetuned")
-def read_root():
-    return FileResponse(os.path.join(BASE_DIR, "frontend/index-finetuned.html"))
 
 @app.post("/search_by_text_image_finetuned")
 async def search_by_text_image_finetuned(query_text: str = Query(...), top_k: int = 20):
@@ -102,4 +108,4 @@ async def search_by_text(query_text: str = Query(...), top_k: int = 20):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("search_products:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("search_products_finetuned:app", host="0.0.0.0", port=8002, reload=True)

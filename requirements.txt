@@ -1,0 +1,16 @@
+fastapi
+matplotlib
+numpy
+pandas
+Pillow
+python-multipart
+qdrant-client
+requests
+scikit-learn
+seaborn
+sentence-transformers==2.5.1
+tabulate
+torch
+torchvision
+transformers==4.38.2
+uvicorn[standard]

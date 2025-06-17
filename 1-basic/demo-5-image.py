@@ -7,16 +7,26 @@ import glob
 import numpy as np
 
 import os
-os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
 
-
+print("Loading images")
 # Загрузка изображений из локальной папки
-image_paths = sorted(glob.glob("images/*.jpg"))
-images = [Image.open(path).convert("RGB") for path in image_paths]
+script_dir = os.path.dirname(os.path.abspath(__file__))
+images_dir = os.path.join(script_dir, "images")
+# Загрузка изображений
+image_paths = sorted(glob.glob(f"{images_dir}/*.jpg"))
 
+images = [Image.open(path).convert("RGB") for path in image_paths]
+print("Loaded images:", len(images))
+print("Loading model")
 # Генерация эмбеддингов
 model = SentenceTransformer('clip-ViT-B-32')
+print("Generating embeddings")
 embeddings = model.encode(images)
+print("Generated embeddings:", len(embeddings))
 
 # PCA для снижения размерности
 pca = PCA(n_components=2)
@@ -34,7 +44,6 @@ for (x, y), img in zip(coords, images):
 ax.update_datalim(coords)
 ax.autoscale()
 
-ax.set_title("Эмбеддинги изображений через CLIP (PCA)", fontsize=25, fontweight='bold')  # set title font size
 ax.grid(True)
 plt.savefig("image_embeddings.png", dpi=300, bbox_inches='tight')
-plt.show()
+

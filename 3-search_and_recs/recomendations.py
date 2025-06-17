@@ -19,7 +19,7 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # раздача изображений товаров
-app.mount("/static", StaticFiles(directory=os.path.abspath("data/product_images")), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "data/product_images")), name="static")
 
 
 # раздача фронтенда
@@ -28,7 +28,12 @@ async def get_frontend():
     return FileResponse(os.path.join(BASE_DIR, "frontend/recs.html"))
 
 # подключение к Qdrant
-client = QdrantClient("http://localhost:6333")
+# For Docker on Windows\MAC, use "http://host.docker.internal:6333"
+# QDRANT_URL = "http://host.docker.internal:6333"
+# For Docker on Linux use
+# QDRANT_URL = "http://172.17.0.1:6333"
+QDRANT_URL = "http://host.docker.internal:6333"
+client = QdrantClient(QDRANT_URL)
 COLLECTION_NAME = "fine_tuned_products"
 
 @app.get("/random")
@@ -78,4 +83,4 @@ async def recommend(viewed_ids: str = Query("", description="Comma separated IDs
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("recomendations:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("recomendations:app", host="0.0.0.0", port=8002, reload=True)

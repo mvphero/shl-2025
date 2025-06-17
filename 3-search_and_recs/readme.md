@@ -1,9 +1,10 @@
+# Bare-metal версия
 ### 1) Подгрузка демо-данных
 
 Для начала скачайте необходимые данные по следующей ссылке:
 [Скачать data.zip](https://storage.yandexcloud.net/shl2025/2-qdrant/data.zip)
 
-После скачивания распакуйте архив в папку `2-qdrant` вашего проекта:
+После скачивания распакуйте архив в папку `3-search-and-recs` вашего проекта:
 
 ```bash
 unzip data.zip -d 2-qdrant
@@ -94,3 +95,38 @@ python3 index_products_finetuned.py
 ```bash
 python3 recomendations.py
 ```
+
+# Docker версия
+Для запуска через Docker, чтобы избежать проблем с зависимостями и окружением, выполните следующие шаги:
+Используйте образ, из предыдущего задания
+запускайте из корневой папки через 
+ARM64 версия
+```bash
+docker run --network=host -v .:/app shl2025-arm64 python3 3-search_and_recs/index_products.py
+```
+AMD64 версия
+```bash
+docker run --network=host -v .:/app shl2025-amd64 python3 3-search_and_recs/index_products.py
+```
+
+
+Запуск сервера
+ARM64 версия
+```bash
+ docker run  -p 8002:8002 -v .:/app shl2025-arm64 python3 3-search_and_recs/search_products.py
+```
+AMD64 версия
+```bash
+ docker run  -p 8002:8002 -v .:/app shl2025-amd64 python3 3-search_and_recs/search_products.py
+```
+После запуска сервера, вы сможете получить доступ к интерфейсу поиска:
+
+
+## Запуск сервера рекомендаций
+
+ARM64 версия
+```bash
+docker run  -p 8002:8002 -v .:/app shl2025:arm64 python3 3-search_and_recs/recomendations.py   
+```
+
+

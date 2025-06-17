@@ -1,8 +1,10 @@
 from sentence_transformers import SentenceTransformer
-import numpy as np
 import os
 
-os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
 
 # загружаем модель
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')

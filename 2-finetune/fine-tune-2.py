@@ -1,5 +1,10 @@
 from sentence_transformers import SentenceTransformer, InputExample, losses, util
 from torch.utils.data import DataLoader
+import os
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
 
 # Загружаем исходную модель
 model_original = SentenceTransformer('clip-ViT-B-32-multilingual-v1')
@@ -30,7 +35,7 @@ model_tuned = SentenceTransformer('clip-ViT-B-32-multilingual-v1')
 # Запуск дообучения
 model_tuned.fit(
     train_objectives=[(train_dataloader, train_loss)],
-    epochs=10,
+    epochs=5,
     warmup_steps=3
 )
 

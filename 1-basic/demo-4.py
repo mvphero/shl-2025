@@ -4,10 +4,15 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import os
-os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
+if os.path.exists("models_cache"):
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "models_cache"
+else:
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = "./../models_cache"
 
 # 1. Загружаем данные
-products = pd.read_csv("data/products.csv")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(script_dir, "data", "products.csv")
+products = pd.read_csv(csv_path)
 
 # 2. Подготовим тексты для эмбеддингов
 texts = (products["name"] + ". " + products["description"]).tolist()
@@ -35,17 +40,18 @@ for cluster_id in range(num_clusters):
 
 # подписываем точки товарами
 for i, txt in enumerate(products["name"]):
-    plt.annotate(txt, (reduced_embeddings[i, 0], reduced_embeddings[i, 1]), fontsize=8, alpha=0.7)
+    plt.annotate(txt, (reduced_embeddings[i, 0], reduced_embeddings[i, 1]), fontsize=15, alpha=1,
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.7))
 
+#
 # 6. Выводим примеры товаров по кластерам
 for cluster_id in range(num_clusters):
     print(f"\nCluster {cluster_id} products:")
     print(products[products["cluster"] == cluster_id][["name", "description"]].to_markdown(index=False))
 
-plt.title("K-Means clustering of Product Embeddings")
 plt.xlabel("PCA component 1")
 plt.ylabel("PCA component 2")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+plt.savefig("kmeans_clustering-2.png", dpi=300, bbox_inches='tight')
