@@ -102,22 +102,22 @@ python3 recomendations.py
 запускайте из корневой папки через 
 ARM64 версия
 ```bash
-docker run --network=host -v .:/app shl2025-arm64 python3 3-search_and_recs/index_products.py
+docker run --network=host -v .:/app shl2025:arm64 python3 3-search_and_recs/index_products.py
 ```
 AMD64 версия
 ```bash
-docker run --network=host -v .:/app shl2025-amd64 python3 3-search_and_recs/index_products.py
+docker run --network=host -v .:/app shl2025:amd64 python3 3-search_and_recs/index_products.py
 ```
 
 
 Запуск сервера
 ARM64 версия
 ```bash
- docker run  -p 8002:8002 -v .:/app shl2025-arm64 python3 3-search_and_recs/search_products.py
+ docker run  -p 8002:8002 -v .:/app shl2025:arm64 python3 3-search_and_recs/search_products.py
 ```
 AMD64 версия
 ```bash
- docker run  -p 8002:8002 -v .:/app shl2025-amd64 python3 3-search_and_recs/search_products.py
+ docker run  -p 8002:8002 -v .:/app shl2025:amd64 python3 3-search_and_recs/search_products.py
 ```
 После запуска сервера, вы сможете получить доступ к интерфейсу поиска:
 
@@ -128,5 +128,12 @@ ARM64 версия
 ```bash
 docker run  -p 8002:8002 -v .:/app shl2025:arm64 python3 3-search_and_recs/recomendations.py   
 ```
+AMD64 версия
+```bash
+docker run  -p 8002:8002 -v .:/app shl2025:amd64 python3 3-search_and_recs/recomendations.py   
+```
+
+
+
 
 

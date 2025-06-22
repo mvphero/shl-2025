@@ -30,12 +30,16 @@ unzip models_cache.zip
 docker load -i shl2025-arm64.tar
 ```
 Запуск 1го примера
-
+ARM64
 ```bash 
-docker run -v .:/app shl2025 python3 1-basic/demo.py
+docker run -v .:/app shl2025:arm64 python3 1-basic/demo.py
 ```
+AMD64
+```bash 
+docker run -v .:/app shl2025:amd64 python3 1-basic/demo.py
+```
+
 Запуск 2го примера
 ```bash 
-docker run -v .:/app shl2025 python3 1-basic/demo-1.py
+docker run -v .:/app shl2025:arm64 python3 1-basic/demo-1.py
 ```
-итп
